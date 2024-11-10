@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <script>
+    function check_lowercase(password){
+      return /[a-z]/.test(password)
+    }
+    function check_uppercase(password){
+      return /[A-Z]/.test(password)
+    }
+    function check_digit(password){
+      return /[\d]/.test(password)
+    }
+    function check_specialchar(password){
+      return /[!@#$%^&*()_+=?><:{},.']/.test(password)
+    }
+   function check_commonwords(password){
+     const commonPasswords = [
+       "123456", "password", "123456789", "12345", "1234", "qwerty", "abc123", "111111",
+       "password1", "123123", "welcome", "1q2w3e4r", "admin", "letmein", "monkey", "123qwe",
+       "qwerty123", "sunshine", "iloveyou", "trustno1", "123321", "qwertyuiop", "dragon",
+       "password123", "123abc", "11111111", "1qaz2wsx", "qazwsx", "1234qwer", "password1!"
+     ];
+      for (const common_pass of commonPasswords){
+        if(common_pass === password.toString().toLowerCase()){
+          return false
+        }
+      }
+      return true
+    }
+
+    function eval_pass(username, password){
+      let score = 0
+      let feedback = []
+      username = username.toString()
+      password = password.toString()
+
+      if(username !== "" && (password.includes(username) || password.toLowerCase().includes(username.toLowerCase()))){
+        feedback.push("Username should not be present in password")
+      }else{
+        score += 1
+      }
+
+      if(password.length >= 8){
+        score += 2
+      }else{
+        feedback.push("Password should be at least 8 characters long.")
+      }
+
+      if (check_lowercase(password)){
+        score += 1
+      }else{
+        feedback.push("Password should contain at least one lowercase letter.")
+      }
+
+      if (check_uppercase(password)){
+        score += 1
+      }else {
+        feedback.push("Password should contain at least one uppercase letter.")
+      }
+
+      if (check_digit(password)){
+        score += 1
+      }else{
+        feedback.push("Password should contain at least one digit")
+      }
+
+      if (check_specialchar(password)){
+        score += 2
+      }else{
+        feedback.push("Password should contain at least one special character.")
+      }
+     if (check_commonwords(password)){
+        score += 2
+      }else{
+        feedback.push("Password is too common.")
+      }
+
+      return [score, feedback]
+    }
+
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const button = document.getElementById('regButton')
+      button.addEventListener('click', (event)=>{
+          event.preventDefault()
+
+
+
+          let password = document.getElementById('password').value
+          let username = document.getElementById('username').value
+          if(password === ""){
+            let suggestion_div = document.getElementById('Suggestion')
+
+            suggestion_div.innerHTML = "Please enter a password"
+            return;
+          }
+          let result = eval_pass(username, password)
+          let score = result[0]
+          let feedback = result[1]
+
+          let password_strength = "Weak"
+          if (score >= 8){
+            password_strength = "Strong"
+          }else if (score >= 5){
+            password_strength = "Moderate"
+          }
+
+          let strength_div = document.querySelector("#PasswordStrength > span")
+          strength_div.textContent = password_strength
+
+          let score_div = document.querySelector("#Score > span")
+          score_div.textContent = score.toString()
+
+
+          let suggestion_div = document.getElementById('Suggestion')
+          suggestion_div.innerHTML = ""
+          for (const message of feedback){
+            let inner_html = `<div>${message}</div>`
+            suggestion_div.innerHTML += inner_html
+          }
+      })
+    })
+  </script>
+</head>
+<body>
+    <main>
+      <form>
+        <label for="username"><input type="text" name="username" id="username"></label> <br>
+        <label for="password"><input type="password" name="password" id="password"></label><br>
+        <button id="regButton">Register</button>
+      </form>
+      <div id="Suggestion" ></div>
+      <div id="PasswordStrength">Strength: <span></span></div>
+      <div id="Score" >Score: <span></span></div>
+    </main>
+</body>
+</html>
